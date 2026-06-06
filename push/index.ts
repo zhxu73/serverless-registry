@@ -119,7 +119,10 @@ for (const layer of manifest.Layers) {
       //   2. <layer>/layer.tar
       //
       // This handles both cases.
-      const layerName = layer.endsWith(".tar") ? path.dirname(layer) : path.basename(layer);
+      let layerName = layer.endsWith(".tar") ? path.dirname(layer) : path.basename(layer);
+      if (layerName === ".") {
+        layerName = path.basename(layer, ".tar");
+      }
 
       const layerCachePath = path.join(cacheFolder, layerName + "-ptr");
       {
@@ -131,7 +134,7 @@ for (const layer of manifest.Layers) {
       }
 
       const inprogressPath = path.join(cacheFolder, layerName + "-in-progress");
-      await rm(inprogressPath, { recursive: true });
+      await rm(inprogressPath, { recursive: true, force: true });
 
       const hasher = new Bun.CryptoHasher("sha256");
       const cacheWriter = file(inprogressPath).writer();
